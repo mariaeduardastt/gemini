@@ -1,63 +1,73 @@
 document.addEventListener("DOMContentLoaded", () => {
-  let numeroSecreto = gerarNumero();
-  let totalTentativas = 0;
-
-  const inputPalpite = document.getElementById("palpite");
-  const btnChutar = document.getElementById("btnChutar");
+  const celulas = document.querySelectorAll(".celula");
+  const statusTexto = document.getElementById("status");
+  const jogadorAtualSpan = document.getElementById("jogadorAtual");
   const btnReiniciar = document.getElementById("btnReiniciar");
-  const mensagem = document.getElementById("mensagem");
-  const textoTentativas = document.getElementById("tentativas");
 
-  function gerarNumero() {
-    return Math.floor(Math.random() * 100) + 1;
-  }
+  let jogadorAtual = "X";
+  let estadoJogo = ["", "", "", "", "", "", "", "", ""];
+  let jogoAtivo = true;
 
-  function verificarChute() {
-    const chute = parseInt(inputPalpite.value);
+  const combinacoesVitoria = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Linhas
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Colunas
+    [0, 4, 8], [2, 4, 6]             // Diagonais
+  ];
 
-    if (isNaN(chute) || chute < 1 || chute > 100) {
-      mensagem.textContent = "Digite um número válido entre 1 e 100!";
-      mensagem.style.color = "#f38ba8";
+  function cliqueCelula(e) {
+    const celula = e.target;
+    const index = parseInt(celula.getAttribute("data-index"));
+
+    if (estadoJogo[index] !== "" || !jogoAtivo) {
       return;
     }
 
-    totalTentativas++;
-    textoTentativas.textContent = `Tentativas: ${totalTentativas}`;
+    estadoJogo[index] = jogadorAtual;
+    celula.textContent = jogadorAtual;
+    celula.classList.add(jogadorAtual.toLowerCase());
 
-    if (chute === numeroSecreto) {
-      mensagem.textContent = `🎉 Parabéns! Você acertou em ${totalTentativas} tentativa(s)!`;
-      mensagem.style.color = "#a6e3a1";
-      inputPalpite.disabled = true;
-      btnChutar.disabled = true;
-      btnReiniciar.classList.remove("oculto");
-    } else if (chute < numeroSecreto) {
-      mensagem.textContent = " O número secreto é MAIOR!";
-      mensagem.style.color = "#f9e2af";
-    } else {
-      mensagem.textContent = " O número secreto é MENOR!";
-      mensagem.style.color = "#f9e2af";
-    }
-
-    inputPalpite.value = "";
-    inputPalpite.focus();
+    verificarResultado();
   }
 
-  btnChutar.addEventListener("click", verificarChute);
+  function verificarResultado() {
+    let venceu = false;
 
-  inputPalpite.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !btnChutar.disabled) {
-      verificarChute();
+    for (let i = 0; i < combinacoesVitoria.length; i++) {
+      const [a, b, c] = combinacoesVitoria[i];
+      if (estadoJogo[a] && estadoJogo[a] === estadoJogo[b] && estadoJogo[a] === estadoJogo[c]) {
+        venceu = true;
+        break;
+      }
     }
-  });
 
-  btnReiniciar.addEventListener("click", () => {
-    numeroSecreto = gerarNumero();
-    totalTentativas = 0;
-    textoTentativas.textContent = "Tentativas: 0";
-    mensagem.textContent = "";
-    inputPalpite.disabled = false;
-    btnChutar.disabled = false;
-    btnReiniciar.classList.add("oculto");
-    inputPalpite.focus();
-  });
+    if (venceu) {
+      statusTexto.innerHTML = `🎉 Jogador <strong>${jogadorAtual}</strong> venceu!`;
+      jogoAtivo = false;
+      return;
+    }
+
+    if (!estadoJogo.includes("")) {
+      statusTexto.textContent = "🤝 Empate (Deu Velha)!";
+      jogoAtivo = false;
+      return;
+    }
+
+    jogadorAtual = jogadorAtual === "X" ? "O" : "X";
+    jogadorAtualSpan.textContent = jogadorAtual;
+  }
+
+  function reiniciarJogo() {
+    jogadorAtual = "X";
+    estadoJogo = ["", "", "", "", "", "", "", "", ""];
+    jogoAtivo = true;
+    statusTexto.innerHTML = 'Vez do jogador: <span id="jogadorAtual">X</span>';
+
+    celulas.forEach(celula => {
+      celula.textContent = "";
+      celula.classList.remove("x", "o");
+    });
+  }
+
+  celulas.forEach(celula => celula.addEventListener("click", cliqueCelula));
+  btnReiniciar.addEventListener("click", reiniciarJogo);
 });
