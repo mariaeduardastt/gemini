@@ -3,15 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meu Projeto Web</title>
+  <title>Jogo da Adivinhação</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="container">
-    <h1>Bem-vindo ao Meu Projeto!</h1>
-    <p>Este projeto foi integrado com HTML, CSS e JavaScript.</p>
-    <button id="btnInteracao">Clique aqui</button>
-    <p id="mensagem" class="oculto"></p>
+  <main class="card">
+    <h1>Adivinhe o Número</h1>
+    <p class="descricao">Tente acertar o número secreto entre 1 e 100.</p>
+    
+    <div class="input-group">
+      <input type="number" id="palpite" placeholder="Digite um número" min="1" max="100">
+      <button id="btnChutar">Chutar</button>
+    </div>
+
+    <p id="mensagem" class="mensagem"></p>
+    <p id="tentativas" class="tentativas">Tentativas: 0</p>
+    
+    <button id="btnReiniciar" class="btn-reiniciar oculto">Jogar Novamente</button>
   </main>
 
   <script src="script.js"></script>
